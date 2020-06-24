@@ -46,18 +46,18 @@
                 data:$('#singleURLForm').serialize(),
                 success:function(){
                     $('#result').empty();
-                    var url = '{{URL}}';
-                    var total = '{{total}}';
-                    var wordDictionary = '{{ wordDictionary|tojson }}';
                     var succeed = '{{succeed}}';
                     if(succeed == false)
                     {
                         $('#result').html('<li>fail</li>');
                         return;
                     }
-                    $('#result').html('<li>'+'url: '+url+'</li>');
-                    $('#result').html('<li>'+'total: '+total+'</li>');
+                    var data = '{{wordDictionary}}';
+                    $('#result').html('<li>'+'url: '+data['URL']+'</li>');
+                    $('#result').html('<li>'+'total: '+data['totalWord']+'</li>');
+                    $('#result').html('<li>'+'caculateTime: '+data['caculateTime']+'</li>');
                     var keys = [];
+                    var wordDictionary = data['wordFrequency_dict'];
                     for(var k in wordDictionary) keys.push(k);
                     for(var k in keys)
                     {
