@@ -1,7 +1,8 @@
+#!/usr/bin/python
 from flask import Flask
 from flask import render_template
 from flask import request
-from Single_website_Crawler import URLData, analyze_URL_words
+from Single_website_Crawler import URLData, analyze_URL_words, jsonify_URLData
 
 app = Flask(__name__)
 
@@ -23,7 +24,7 @@ def singleURL_processing_page():
             print(e)
             return render_template('index.html', wordDictionary={}, succeed=False)
 
-    return render_template('index.html', URL=requestedURL, wordDictionary=URL_res.wordFrequency_dict, succeed=True)
+    return render_template('index.html', wordDictionary=jsonify_URLData(URL_res), succeed=True)
 
 
 if __name__=='__main__':
