@@ -1,10 +1,21 @@
+#!/usr/bin/python
 import requests
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
+from elasticsearch import Elasticsearch
 import nltk
 import time
 nltk.download('stopwords')
 
+#소스 파일 Initial Code
+english_stopword_list = []      #English stopword list
+for stopword in stopwords.words("english"):
+    english_stopword_list.append(stopword)
+
+try:
+    elasticStream = Elasticsearch([{'es_host':'127.0.0.1', 'es_port':'9200'}], timeout=30)
+except:
+    print("elastic Stream Error \n\n\n\n\n\n\n\n\n")
 
 class URLData: #URL 크롤링 결과 데이터 객체
     wordFrequency_dict = {}     #단어 빈도 수
@@ -13,10 +24,21 @@ class URLData: #URL 크롤링 결과 데이터 객체
     caculateTime = 0.0          #크롤링 시간
     activated_on_site = True    #웹사이트 상에 활성화 여부
 
+    
+    
 
-english_stopword_list = []      #English stopword list
-for stopword in stopwords.words("english"):
-    english_stopword_list.append(stopword)
+#URLData Object --> Dictonary(convertible to JSON) and return it
+def jsonify_URLData(URLData_parameter):
+    py_dictionary = {}
+    py_dictionary["wordFrequency_dict"] = URLData_parameter.wordFrequency_dict
+    py_dictionary["totalWord"] = URLData_parameter.totalWord
+    py_dictionary["URL"] = URLData_parameter.URL
+    py_dictionary["caculateTime"]=URLData_parameter.caculateTime
+    py_dictionary["activated_on_site"]=URLData_parameter.activated_on_site
+
+    return py_dictionary
+
+
 
 def word_englishParser(word):   #특수문자/숫자가 섞인 문자에서 영단어만 뽑아옵니다.
     engWord_list = []           #return engWord_list <List> 
@@ -47,7 +69,7 @@ def word_englishParser(word):   #특수문자/숫자가 섞인 문자에서 영�
 
 
 def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 딕셔너리를 만듭니다.
-    websiteData = URLData()     #return wordFrequency_dict <URLData<Dict, int, str, double, bool>>
+    websiteData = URLData()     #return  dictonarized_URLData()<URLData<Dict, int, str, double, bool>>
     websiteData.URL += URL
  
     executeTime_start = time.time()
@@ -90,10 +112,14 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
                 websiteData.wordFrequency_dict[engWord] += 1 #이미 있던 단어는 count 추가!
                 websiteData.totalWord += 1
     
-    websiteData.caculateTime = executeTime_start - time.time()     #크롤링 시간 측정
-
+    websiteData.caculateTime = time.time() - executeTime_start    #크롤링 시간 측정
+    
 
     #insert to ElasticSearch
+    saveData = elasticStream.index(index='urldata', doc_type='website', id=1, body=jsonify_URLData(websiteData))
+    if saveData == False:
+        print("\nURLData Saving to Elastic Failed..\n")
+
 
     return websiteData
     
