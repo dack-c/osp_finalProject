@@ -16,7 +16,7 @@
             <h1>Web Page Analysis</h1>
         </div>
 
-        <form id="singleURLForm">
+        <!-- <form id="singleURLForm" method="POST" action="/singleURL">
             <div class="form-group col-xs-6">
                 <label for="urlInput">단일URL입력</label>
                 <div class="input-group input-group-lg">
@@ -26,6 +26,11 @@
                     </div>
                 </div>
             </div>
+        </form> -->
+
+        <form id="singleURLForm" method="POST" action="/singleURL">
+            <input name="url" type="text" placeholder="분석하고자 하는 URL을 입력하세요." class="form-control">
+            <button type="submit" class="btn btn-default">업로드</button>
         </form>
 
         <ul id="result">
@@ -43,7 +48,6 @@
             $.ajax({
                 url:'./singleURL',
                 type:'post',
-                data:$('#singleURLForm').serialize(),
                 success:function(){
                     $('#result').empty();
                     var succeed = '{{succeed}}';

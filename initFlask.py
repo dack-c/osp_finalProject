@@ -15,7 +15,7 @@ def startPage():
 @app.route('/singleURL', methods=['POST'])
 def singleURL_processing_page():
     if (request.method == 'POST'):
-        requestedURL = str(request.form['url']) #get singleURL from input Box
+        requestedURL = request.form['url'] #get singleURL from input Box
         
         URL_res = URLData()
         try:
@@ -32,7 +32,7 @@ if __name__=='__main__':
     print("Starting the service with ipAddress = " + ipAddress)
     listen_port = 5555
 
-    app.run(debug=False, host = ipAddress, port=int(listen_port))
+    app.run(debug=True, host = ipAddress, port=int(listen_port))
 
 
     
