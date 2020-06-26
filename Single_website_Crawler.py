@@ -12,10 +12,7 @@ english_stopword_list = []      #English stopword list
 for stopword in stopwords.words("english"):
     english_stopword_list.append(stopword)
 
-try:
-    elasticStream = Elasticsearch([{'es_host':'127.0.0.1', 'es_port':'9200'}], timeout=30)
-except:
-    print("elastic Stream Error \n\n\n\n\n\n\n\n\n")
+
 
 class URLData: #URL 크롤링 결과 데이터 객체
     wordFrequency_dict = {}     #단어 빈도 수
@@ -77,7 +74,7 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
     try:
         websiteRequest_receiver = requests.get(URL)
     except:
-        raise Exception("request Error")      #예외
+        raise Exception("Website not found! or wrong notation")      #작동하지 않거나 이상한 URL 집어 넣으면 에러
 
     #HTML 원문 저장
     website_HTMLText = BeautifulSoup(websiteRequest_receiver.content, 'html.parser')
@@ -116,9 +113,10 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
     
 
     #insert to ElasticSearch(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
-    # saveData = elasticStream.index(index='urldata', doc_type='website', id=1, body=jsonify_URLData(websiteData))
-    # if saveData == False:
-    #     print("\nURLData Saving to Elastic Failed..\n")
+    from initFlask import elasticStream
+    saveData = elasticStream.index(index='urldata', doc_type='website', id=1, body=jsonify_URLData(websiteData))
+    if saveData == False:
+        print("\nURLData Saving to Elastic Failed..\n")
 
 
     return websiteData
