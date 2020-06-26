@@ -5,13 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "chrome",
             "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/Starting.sh",
+            "name": "Launch Chrome against localhost",
+            "file": "${workspaceFolder}/index.html"
+        },
+        {
+            "type": "python",
+            "request": "launch",
+            "name": "Launch Python",
+            "program": "${workspaceFolder}/initFlask.py",
             "console" : "integratedTerminal",
             "stopOnEntry": false
         }

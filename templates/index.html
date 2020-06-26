@@ -12,43 +12,75 @@
 </head>
 <body>
     <div class="container">
-        <div class="page-header">
+        <div class="page-header text-center">
             <h1>Web Page Analysis</h1>
         </div>
-
-        <form id="singleURLForm" method="POST" action="/singleURL">
-            <div class="form-group col-xs-6">
-                <label for="urlInput">단일URL입력</label>
-                <div class="input-group input-group-lg">
-                    <input name="url" type="text" placeholder="분석하고자 하는 URL을 입력하세요." class="form-control">
-                    <div class="input-group-btn">
-                        <button type="submit" class="btn btn-default">업로드</button>
+    
+        <div class="row">
+            <form id="singleURLForm" method="POST" action="/singleURL">
+                <div class="form-group col-xs-6">
+                    <label for="urlInput">단일URL입력</label>
+                    <div class="input-group input-group-lg">
+                        <input name="url" type="text" placeholder="분석하고자 하는 URL을 입력하세요." class="form-control">
+                        <div class="input-group-btn">
+                            <button type="submit" class="btn btn-default" id="aeae">업로드</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-
+            </form>
+        </div>
+        
+    
         <!-- <form id="singleURLForm" method="POST" action="/singleURL">
             <input name="url" type="text" placeholder="분석하고자 하는 URL을 입력하세요." class="form-control">
             <div class="input-group-btn">
                 <button type="submit" class="btn btn-default">업로드</button>
             </div>
         </form> -->
-
-        <ul id="result">
-
-        </ul>
-
+        <div class="row">
+            <ul id="result">
+            </ul>
+        </div>
     </div>
+    
     <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
-        $('#upload').click(function(){
+        $(document).ready(function () {
+            if ($(location).attr('pathname') == '/singleURL')
+            {
+                $('#result').empty();
+                var succeed = '{{succeed}}';
+                if (succeed == 'False')
+                {
+                    $('#result').append('<li>fail</li>');
+                    return;
+                }
+                {% if isRootPage == False %}
+                    var data = JSON.parse('{{ wordDictionary | tojson | safe}}');
+                {% endif %}
+                
+                $('#result').append('<li>' + 'url: ' + data["URL"] + '</li>');
+                $('#result').append('<li>' + 'total: ' + data['totalWord'] + '</li>');
+                $('#result').append('<li>' + 'caculateTime: ' + data['caculateTime'] + '</li>');
+                var keys = [];
+                var wordDictionary = data['wordFrequency_dict'];
+                for (var k in wordDictionary) keys.push(k);
+                for (var k of keys)
+                {
+                    $('#result').append('<li>' + k + ': ' + wordDictionary[k] + '</li>');
+                }
+            }
+        })
+    </script>
+
+    <!-- <script type="text/javascript">
+        $(document).ready(function(){
             $.ajax({
-                url:'./singleURL',
+                url:'/',
                 type:'post',
                 success:function(){
                     $('#result').empty();
@@ -72,6 +104,6 @@
                 }
             })
         })
-    </script>
+    </script> -->
 </body>
 </html>

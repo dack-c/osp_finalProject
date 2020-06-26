@@ -115,10 +115,10 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
     websiteData.caculateTime = time.time() - executeTime_start    #크롤링 시간 측정
     
 
-    #insert to ElasticSearch
-    saveData = elasticStream.index(index='urldata', doc_type='website', id=1, body=jsonify_URLData(websiteData))
-    if saveData == False:
-        print("\nURLData Saving to Elastic Failed..\n")
+    #insert to ElasticSearch(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
+    # saveData = elasticStream.index(index='urldata', doc_type='website', id=1, body=jsonify_URLData(websiteData))
+    # if saveData == False:
+    #     print("\nURLData Saving to Elastic Failed..\n")
 
 
     return websiteData

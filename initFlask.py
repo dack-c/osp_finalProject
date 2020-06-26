@@ -6,6 +6,7 @@ from Single_website_Crawler import URLData, analyze_URL_words, jsonify_URLData
 import pdb
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
 
 
 @app.route('/')
@@ -23,11 +24,11 @@ def singleURL_processing_page():
            URL_res = analyze_URL_words(requestedURL)
         except Exception as e: #URL 요청 실패
             print(e)
-            pdb.set_trace()
-            return render_template('index.html', wordDictionary={}, succeed=False)
+            # pdb.set_trace()
+            return render_template('index.html', wordDictionary={}, succeed=False, isRootPage=True)
 
-    pdb.set_trace()
-    return render_template('index.html', wordDictionary=jsonify_URLData(URL_res), succeed=True)
+    # pdb.set_trace()
+    return render_template('index.html', wordDictionary=jsonify_URLData(URL_res), succeed=True, isRootPage=False)
 
 
 if __name__=='__main__':
