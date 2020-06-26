@@ -2,7 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 import nltk
 import time
 nltk.download('stopwords')
@@ -15,11 +15,14 @@ for stopword in stopwords.words("english"):
 
 
 class URLData: #URL 크롤링 결과 데이터 객체
-    wordFrequency_dict = {}     #단어 빈도 수
-    totalWord = 0               #총 출현 단어 수
-    URL = ""                    #URL string
-    caculateTime = 0.0          #크롤링 시간
-    activated_on_site = True    #웹사이트 상에 활성화 여부
+    def __init__(self):
+        self.wordFrequency_dict = dict()
+        self.totalWord = 0
+        self.URL = str()
+        self.caculateTime = 0.0
+        self.activated_on_site = True
+
+        
 
     
     
@@ -67,7 +70,7 @@ def word_englishParser(word):   #특수문자/숫자가 섞인 문자에서 영�
 
 def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 딕셔너리를 만듭니다.
     websiteData = URLData()     #return  dictonarized_URLData()<URLData<Dict, int, str, double, bool>>
-    websiteData.URL += URL
+    websiteData.URL = URL
  
     executeTime_start = time.time()
 
@@ -114,7 +117,14 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
 
     #insert to ElasticSearch(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
     from initFlask import elasticStream
-    saveData = elasticStream.index(index='urldata', doc_type='website', id=1, body=jsonify_URLData(websiteData))
+    websiteCount = 0
+    try:
+        websiteCount = elasticStream.count(index='urldata', doc_type='website')['count'] + 1
+    except NotFoundError:
+        websiteCount = 1
+
+    print("Add urlData to ElasticSearch id = ", websiteCount, ". URL = ", websiteData.URL)
+    saveData = elasticStream.index(index='urldata', doc_type='website', id=websiteCount, body=jsonify_URLData(websiteData))
     if saveData == False:
         print("\nURLData Saving to Elastic Failed..\n")
 
