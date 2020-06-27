@@ -28,10 +28,12 @@ def singleURL_processing_page():
 
     
         try:
+            #(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
             #isExist : 이미 ElasticSearch에 존재하는 URL이면 1 아니면 0을 반환합니다. 조금 더 상세한 로직은 elastic_test.py 2 참고
             isExist = elasticStream.search(body={"query":{"match":{"URL.keyword":requestedURL}}}, index='urldata', doc_type='website')['hits']['total']['value']
             if isExist != 0:
                 raise Exception("Already Exist URL")
+            ######
 
             URL_res = analyze_URL_words(requestedURL)
         except Exception as e: #URL 요청 실패
@@ -56,7 +58,7 @@ if __name__=='__main__':
     except Exception as e:
         print(e)
         print("elastic Stream Error \n")
-
+    ####
 
 
     app.run(debug=True, host = ipAddress, port=int(listen_port))

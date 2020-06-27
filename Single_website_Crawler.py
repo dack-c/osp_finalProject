@@ -127,6 +127,7 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
     saveData = elasticStream.index(index='urldata', doc_type='website', id=websiteCount, body=jsonify_URLData(websiteData))
     if saveData == False:
         print("\nURLData Saving to Elastic Failed..\n")
+    #####
 
 
     return websiteData
