@@ -12,11 +12,15 @@ if __name__=="__main__":
     ipAddress='127.0.0.1'
     elasticStream = Elasticsearch([{'es_host':ipAddress, 'es_port':'9200'}], timeout=30)
 
+    import Multi_website_Crawler
+    URL_list = Multi_website_Crawler.multi_URL_analyze("URL_test.txt")
+
+    print(len(URL_list))
+
+    for dic in URL_list:
+        print(dic, '\n\n')
+
     
-
-
-
-
 
 
 

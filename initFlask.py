@@ -1,17 +1,14 @@
 #!/usr/bin/python
-from flask import Flask
-from flask import render_template
-from flask import request
-from elasticsearch import Elasticsearch
+from flask import Flask, render_template, request
+from werkzeug.utils import secure_filename
+import elastic_module
 from Single_website_Crawler import URLData, analyze_URL_words, jsonify_URLData
-from time import sleep
+from Multi_website_Crawler import multi_URL_analyze
+
 import pdb
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-
-#Program 전반에 사용되는 elasticSearch Object
-elasticStream = Elasticsearch()
 
 
 
@@ -28,21 +25,44 @@ def singleURL_processing_page():
 
     
         try:
-            #(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
-            #isExist : 이미 ElasticSearch에 존재하는 URL이면 1 아니면 0을 반환합니다. 조금 더 상세한 로직은 elastic_test.py 2 참고
-            isExist = elasticStream.search(body={"query":{"match":{"URL.keyword":requestedURL}}}, index='urldata', doc_type='website')['hits']['total']['value']
-            if isExist != 0:
-                raise Exception("Already Exist URL")
-            ######
-
             URL_res = analyze_URL_words(requestedURL)
+            elastic_module.insert_elasticSearch(URL_res, 1)
         except Exception as e: #URL 요청 실패
             print(e)
             # pdb.set_trace()
             return render_template('index.html', wordDictionary={}, succeed=False, isRootPage=True)
+            #html 파일 수정되면... 위 라인을 아랫줄 구문으로 바꾸시오
+            #return render_template('index.html', wordDictonary={}, succeed=False, pageStatus=1)
+
 
     # pdb.set_trace()
-    return render_template('index.html', wordDictionary=jsonify_URLData(URL_res), succeed=True, isRootPage=False)
+    return render_template('index.html', wordDictionary=URL_res, succeed=True, isRootPage=False)
+    #html 파일 수정되면... 위 라인을 아랫줄 구문으로 바꾸시오
+    #return render_template('index.html', wordDictonary=URL_res, succeed=True, pageStatus=1)
+
+
+
+@app.route('/multiURL', methods=['POST'])
+def multiURL_processing_page():
+    if (request.method == 'POST'):
+        URL_textFile = request.files['file']
+        URL_textFile.save(secure_filename(URL_textFile.filename))
+
+        #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
+        URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
+        
+        #유효한 URL이 하나도 없다면 실패 반환
+        if (URL_analyzeList.count() == 0):
+            return render_template('index.html', wordDictonaryList=[], succeed=False, pageStatus=2)  #매개변수들 주의
+    
+    return render_template('index.html', wordDictonaryList=URL_analyzeList, succeed=True, pageStatus=2)  #매개변수들 주의
+
+
+        
+        
+
+
+        
 
 
 if __name__=='__main__':
@@ -50,18 +70,10 @@ if __name__=='__main__':
     print("Starting the service with ipAddress = " + ipAddress)
     listen_port = 5555
 
+    #launch ElasticSearch
+    elastic_module.launch_elasticSearch()
 
-    #insert to ElasticSearch(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
-    try:
-        elasticStream = Elasticsearch([{'es_host':ipAddress, 'es_port':'9200'}], timeout=30)
-        print("Open elasticSearch!\n")
-    except Exception as e:
-        print(e)
-        print("elastic Stream Error \n")
-    ####
-
-
-    app.run(debug=True, host = ipAddress, port=int(listen_port))
+    app.run(debug=True, host = ipAddress, port=int(listen_port), use_reloader=False)
 
 
     
