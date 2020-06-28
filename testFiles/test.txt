@@ -1,3 +1,0 @@
-http://airavata.apache.org/
-http://commons.apache.org/
-https://cordova.apache.org/
