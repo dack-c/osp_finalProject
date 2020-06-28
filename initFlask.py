@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 import elastic_module
+import dataAnalysis_module
 from Single_website_Crawler import URLData, analyze_URL_words, jsonify_URLData
 from Multi_website_Crawler import multi_URL_analyze
 
@@ -48,6 +49,7 @@ def multiURL_processing_page():
         elastic_module.clear_elasticSearch_data()
         
         #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
+        global URL_analyzeList
         URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
         
         #유효한 URL이 하나도 없다면 실패 반환
@@ -56,12 +58,29 @@ def multiURL_processing_page():
     
     return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)
 
+
+
 @app.route('/similarity', methods=['POST'])
-def anlyzeSimilarity():
+def analyzeSimilarity():
     if (request.method == 'POST'):
         requestedURL = request.form['targetUrl'] #분석 대상이 될 url을 받음
-        #로직 수행
-        return render_template('cosine-similarity.html', targetUrl=requestedURL, similarityList=cosine_similarity_list) #데이터 보내기
+    
+        return render_template('cosine-similarity.html', targetUrl=requestedURL, \
+            similarityList=dataAnalysis_module.get_cosine_similarity_list(URL_analyzeList, requestedURL)) #데이터 보내기
+
+
+@app.route('/tf-idf', methods=['POST'])
+def analyzetfidf():
+    if (request.method == 'POST'):
+        requestedURL = request.form['targetUrl'] #분석 대상이 될 url을 받음
+    
+        return render_template('tf-idf.html', targetUrl=requestedURL, \
+            similarityList=dataAnalysis_module.get_top_TFIDF_list(URL_analyzeList, requestedURL)) #데이터 보내기
+
+
+
+
+
 
 if __name__=='__main__':
     ipAddress='127.0.0.1'
