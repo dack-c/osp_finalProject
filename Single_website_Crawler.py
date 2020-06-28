@@ -1,17 +1,9 @@
 #!/usr/bin/python
 import requests
 from bs4 import BeautifulSoup
-from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch, NotFoundError
-import nltk
+from nltk_module import english_stopword_list
 import time
-nltk.download('stopwords')
-
-#소스 파일 Initial Code
-english_stopword_list = []      #English stopword list
-for stopword in stopwords.words("english"):
-    english_stopword_list.append(stopword)
-
 
 
 class URLData: #URL 크롤링 결과 데이터 객체
@@ -21,9 +13,7 @@ class URLData: #URL 크롤링 결과 데이터 객체
         self.URL = str()
         self.caculateTime = 0.0
         self.activated_on_site = True
-
         
-
     
     
 
@@ -104,7 +94,7 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
         
 
         for engWord in englishWord_list:
-            if word in english_stopword_list:   #단어가 Stopword면 딕셔너리에 올라가지 않음
+            if engWord in english_stopword_list:   #단어가 Stopword면 딕셔너리에 올라가지 않음
                 continue
             if websiteData.wordFrequency_dict.get(engWord) == None:
                 websiteData.wordFrequency_dict[engWord] = 1  #처음 등장한 단어는 등재하고
@@ -115,22 +105,22 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
     websiteData.caculateTime = time.time() - executeTime_start    #크롤링 시간 측정
     
 
-    #insert to ElasticSearch(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
-    from initFlask import elasticStream
-    websiteCount = 0
-    try:
-        websiteCount = elasticStream.count(index='urldata', doc_type='website')['count'] + 1
-    except NotFoundError:
-        websiteCount = 1
+    # #insert to ElasticSearch(엘라스틱 서치 no설치환경에서 실행시 이거 주석처리)
+    # from elastic_module import elasticStream
+    # websiteCount = 0
+    # try:
+    #     websiteCount = elasticStream.count(index='urldata', doc_type='website')['count'] + 1
+    # except NotFoundError:
+    #     websiteCount = 1
 
-    print("Add urlData to ElasticSearch id = ", websiteCount, ". URL = ", websiteData.URL)
-    saveData = elasticStream.index(index='urldata', doc_type='website', id=websiteCount, body=jsonify_URLData(websiteData))
-    if saveData == False:
-        print("\nURLData Saving to Elastic Failed..\n")
-    #####
+    # print("Add urlData to ElasticSearch id = ", websiteCount, ". URL = ", websiteData.URL)
+    # saveData = elasticStream.index(index='urldata', doc_type='website', id=websiteCount, body=jsonify_URLData(websiteData))
+    # if saveData == False:
+    #     print("\nURLData Saving to Elastic Failed..\n")
+    # #####
 
 
-    return websiteData
+    return jsonify_URLData(websiteData)
     
 
 
