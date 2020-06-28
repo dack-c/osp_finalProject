@@ -44,14 +44,15 @@ def singleURL_processing_page():
 def multiURL_processing_page():
     if (request.method == 'POST'):
         URL_textFile = request.files['txt']
-
+        print(URL_textFile)
+        print(URL_textFile.filename)
 
         elastic_module.clear_elasticSearch_data()
 
         #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
         global URL_analyzeList
         try:
-            URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
+            URL_analyzeList = multi_URL_analyze(secure_filename(URL_textFile.filename))
         except FileNotFoundError:
             print("업로드한 파일이 없습니다.")
             return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2)

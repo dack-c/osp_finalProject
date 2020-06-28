@@ -118,9 +118,6 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
                 websiteData.totalWord += 1
     
     websiteData.caculateTime = time.time() - executeTime_start    #크롤링 시간 측정
-    
-
-
 
     return jsonify_URLData(websiteData)
     
