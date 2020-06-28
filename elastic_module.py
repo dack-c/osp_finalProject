@@ -10,7 +10,7 @@ def launch_elasticSearch():
 
     #elasticSearch Object를 생성하고, 연결합니다.
     try:
-        elasticStream = Elasticsearch([{'es_host':'127.0.0.1', 'es_port':'9200'}], timeout=30)
+        elasticStream = Elasticsearch([{'es_host':'127.0.0.1', 'es_port':'9200'}], timeout=100)
         print("Open elasticSearch!\n")
     except Exception as e:
         print(e)
@@ -18,7 +18,7 @@ def launch_elasticSearch():
     
 
     #elasticSearch가 완전히 연결될때까지 대기합니다. 
-    # (25초가 넘어가면 문제가 생긴 것으로 판단하고 실패처리 합니다.)
+    # (25초가 넘어가면 문제가 생긴 것으로 판단하고 실패처리 합니다.)s
     for waitTime in range(0, 30):
         try:
             print('waiting for Elasticsearch Connection : Time = ', waitTime)
@@ -27,6 +27,8 @@ def launch_elasticSearch():
             elasticStream.cluster.health(wait_for_status='yellow')
             break
         except Exception as e:
+            if (waitTime >= 90):
+                print("It tooks Too much time to connect.")
             pass
 
 
