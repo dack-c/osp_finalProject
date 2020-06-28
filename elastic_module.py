@@ -19,7 +19,7 @@ def launch_elasticSearch():
 
     #elasticSearch가 완전히 연결될때까지 대기합니다. 
     # (25초가 넘어가면 문제가 생긴 것으로 판단하고 실패처리 합니다.)s
-    for waitTime in range(0, 30):
+    for waitTime in range(0, 100):
         try:
             print('waiting for Elasticsearch Connection : Time = ', waitTime)
             sleep(1)
@@ -29,6 +29,7 @@ def launch_elasticSearch():
         except Exception as e:
             if (waitTime >= 90):
                 print("It tooks Too much time to connect.")
+                break
             pass
 
 
