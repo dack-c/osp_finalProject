@@ -75,7 +75,7 @@ def analyzetfidf():
         requestedURL = request.form['targetUrl'] #분석 대상이 될 url을 받음
     
         return render_template('tf-idf.html', targetUrl=requestedURL, \
-            similarityList=dataAnalysis_module.get_top_TFIDF_list(URL_analyzeList, requestedURL)) #데이터 보내기
+            tfidfList=dataAnalysis_module.get_top_TFIDF_list(URL_analyzeList, requestedURL)) #데이터 보내기
 
 
 

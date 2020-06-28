@@ -45,6 +45,7 @@
             {
                 var data = dataList[i];
                 $('#tableBody').append('<tr></tr>');
+                $('#tableBody').children().last().append('<th>' + (i+1) + '</th>');
                 $('#tableBody').children().last().append('<th>' + data["URL"] + '</th>');
                 $('#tableBody').children().last().append('<th>' + data["cosine_similarity"] + '</th>');
             }

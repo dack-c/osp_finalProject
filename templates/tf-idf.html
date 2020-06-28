@@ -13,7 +13,7 @@
 <body>
     <div class="container">
         <div class="page-header text-center">
-            <h1>tf-idf 기반 </h1>
+            <h1>tf-idf 분석 </h1>
             <h2 id="targetUrl"></h2>
         </div>
 
@@ -39,12 +39,13 @@
         $(document).ready(function () {
             $('#targetUrl').append('{{targetUrl}}');
 
-            var dataList = JSON.parse('{{tf-idfList|tojson|safe}}');
+            var dataList = JSON.parse('{{tfidfList|tojson|safe}}');
             var loopNUm = (Object.keys(dataList).length > 10) ? 10 : Object.keys(dataList).length;//최대 3번만 반복위해
             for(var i = 0; i < loopNUm; i++)
             {
                 var data = dataList[i];
                 $('#tableBody').append('<tr></tr>');
+                $('#tableBody').children().last().append('<th>' + (i+1) + '</th>');
                 $('#tableBody').children().last().append('<th>' + data[0] + '</th>');
                 $('#tableBody').children().last().append('<th>' + data[1] + '</th>');
             }
