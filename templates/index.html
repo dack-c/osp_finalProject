@@ -98,8 +98,8 @@
 
                 if ($(location).attr('pathname') == '/singleURL') 
                 {
-                    {% if pageStaus == 1 %}
-                        var data = JSON.parse('{{ wordDictionary | tojson | safe}}');
+                    {% if pageStatus == 1 %}
+                        var data = JSON.parse('{{wordDictionary|tojson|safe}}');
                     {% endif %}
 
                     $('#tableBody').append('<tr id="tableRow"></tr>');
@@ -120,7 +120,7 @@
                 }
                 else if($(location).attr('pathname') == '/multiURL')
                 {
-                    {% if pageStaus == 2 %}
+                    {% if pageStatus == 2 %}
                         var dataList = JSON.parse('{{ wordDictionaryList | tojson | safe}}');
                     {% endif %}
 

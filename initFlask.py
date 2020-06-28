@@ -30,40 +30,32 @@ def singleURL_processing_page():
         except Exception as e: #URL 요청 실패
             print(e)
             # pdb.set_trace()
-            return render_template('index.html', wordDictionary={}, succeed=False, isRootPage=True)
+            # return render_template('index.html', wordDictionary={}, succeed=False, isRootPage=True)
             #html 파일 수정되면... 위 라인을 아랫줄 구문으로 바꾸시오
-            #return render_template('index.html', wordDictonary={}, succeed=False, pageStatus=1)
+            return render_template('index.html', wordDictionary={}, succeed=False, pageStatus=1)
 
 
     # pdb.set_trace()
-    return render_template('index.html', wordDictionary=URL_res, succeed=True, isRootPage=False)
+    # return render_template('index.html', wordDictionary=URL_res, succeed=True, isRootPage=False)
     #html 파일 수정되면... 위 라인을 아랫줄 구문으로 바꾸시오
-    #return render_template('index.html', wordDictonary=URL_res, succeed=True, pageStatus=1)
+    return render_template('index.html', wordDictionary=URL_res, succeed=True, pageStatus=1)
 
 
 
 @app.route('/multiURL', methods=['POST'])
 def multiURL_processing_page():
     if (request.method == 'POST'):
-        URL_textFile = request.files['file']
+        URL_textFile = request.files['txt']
         URL_textFile.save(secure_filename(URL_textFile.filename))
 
         #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
         URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
         
         #유효한 URL이 하나도 없다면 실패 반환
-        if (URL_analyzeList.count() == 0):
-            return render_template('index.html', wordDictonaryList=[], succeed=False, pageStatus=2)  #매개변수들 주의
+        if (len(URL_analyzeList) == 0):
+            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2)  #매개변수들 주의
     
-    return render_template('index.html', wordDictonaryList=URL_analyzeList, succeed=True, pageStatus=2)  #매개변수들 주의
-
-
-        
-        
-
-
-        
-
+    return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)  #매개변수들 주의
 
 if __name__=='__main__':
     ipAddress='127.0.0.1'
