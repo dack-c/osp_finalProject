@@ -27,9 +27,7 @@ def launch_elasticSearch():
             elasticStream.cluster.health(wait_for_status='yellow')
             break
         except Exception as e:
-            if waitTime >= 25:
-                print("elasticSearch seems Connection Problem")
-                return
+            pass
 
 
     #elasticSearch index에서 받을 수 있는 데이터 상한을 20배 늘립니다.
