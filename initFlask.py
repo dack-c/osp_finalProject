@@ -56,6 +56,13 @@ def multiURL_processing_page():
     
     return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)
 
+@app.route('/similarity', methods=['POST'])
+def anlyzeSimilarity():
+    if (request.method == 'POST'):
+        requestedURL = request.form['targetUrl'] #분석 대상이 될 url을 받음
+        #로직 수행
+        return render_template('cosine-similarity.html', targetUrl=requestedURL, similarityList=cosine_similarity_list) #데이터 보내기
+
 if __name__=='__main__':
     ipAddress='127.0.0.1'
     print("Starting the service with ipAddress = " + ipAddress)

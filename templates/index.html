@@ -60,12 +60,38 @@
             </ul>
         </div>
     </div>
+
+    <form name="targetUrlForm" method="POST">
+        <input type="hidden" name="targetUrl">
+    </form>
+
     <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
+
+        $('#result').on("click", ".similarity", function () {
+            var targetUrlForm = document.targetUrlForm;
+            window.open("", "popupView", "width=570, height=700, resizable = yes, scrollbar = yes");
+            
+            targetUrlForm.action = '/similarity';
+            targetUrlForm.target = 'popupView';
+            targetUrlForm.targetUrl.value = $(this).parent().parent().children(':first').text();
+            targetUrlForm.submit();
+        });
+        
+        $('#result').on("click", ".tf-idf", function () {
+            var targetUrlForm = document.targetUrlForm;
+            window.open("", "popupView", "width=570, height=700, resizable = yes, scrollbar = yes");
+            
+            targetUrlForm.action = '/tf-idf';
+            targetUrlForm.target = 'popupView';
+            targetUrlForm.targetUrl.value = $(this).parent().parent().children(':first').text();
+            targetUrlForm.submit();
+        });
+
         $(document).ready(function () {
             if ($(location).attr('pathname') == '/singleURL' || $(location).attr('pathname') == '/multiURL')
             {
@@ -85,7 +111,7 @@
                 $('#result').append(
                     `<table class="table table-bordered">
                         <thead>
-                            <tr>
+                            <tr id="tableHeadRow">
                                 <th>URL</th>
                                 <th>단어 수</th>
                                 <th>처리시간</th>
@@ -120,6 +146,9 @@
                 }
                 else if($(location).attr('pathname') == '/multiURL')
                 {
+                    $('#tableHeadRow').append('<th>유사도 분석</th>');
+                    $('#tableHeadRow').append('<th>tf-idf 분석</th>');
+
                     {% if pageStatus == 2 %}
                         var dataList = JSON.parse('{{ wordDictionaryList | tojson | safe}}');
                     {% endif %}
@@ -129,9 +158,32 @@
                     {
                         var data = dataList[i];
                         $('#tableBody').append('<tr></tr>');
-                        $('#tableBody').children().last().append('<th>' + data["URL"] + '</th>');
-                        $('#tableBody').children().last().append('<th>' + data['totalWord'] + '</th>');
-                        $('#tableBody').children().last().append('<th>' + data['caculateTime'] + '초</th>');
+                        if(data['url_status'] == 0)//정상url
+                        {
+                            $('#tableBody').children().last().append('<th class="url">' + data["URL"] + '</th>');
+                            $('#tableBody').children().last().append('<th>' + data['totalWord'] + '</th>');
+                            $('#tableBody').children().last().append('<th>' + data['caculateTime'] + '초</th>');
+                            $('#tableBody').children().last().append('<th><button class="btn btn-default similarity">유사도 분석</button></th>');
+                            $('#tableBody').children().last().append('<th><button class="btn btn-default tf-idf">tf-idf 분석</button></th>');
+                        }
+                        else if(data['url_status'] == 1)//잘못된 url
+                        {
+                            $('#tableBody').children().last().append('<th>' + data["URL"] + '(잘못된 URL)</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().addClass('danger');
+                        }
+                        else//중복 url
+                        {
+                            $('#tableBody').children().last().append('<th>' + data["URL"] + '(중복 URL)</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().append('<th>' + 'x' + '</th>');
+                            $('#tableBody').children().last().addClass('warning');
+                        }
                     }
                 }
             }   

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 합쳐지고 최소화된 최신 CSS 부트스트랩-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <title>tf-idf 분석</title>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header text-center">
+            <h1>tf-idf 기반 </h1>
+            <h2 id="targetUrl"></h2>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>순위</th>
+                    <th>단어</th>
+                    <th>tf-idf값</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#targetUrl').append('{{targetUrl}}');
+
+            var dataList = JSON.parse('{{tf-idfList|tojson|safe}}');
+            var loopNUm = (Object.keys(dataList).length > 10) ? 10 : Object.keys(dataList).length;//최대 3번만 반복위해
+            for(var i = 0; i < loopNUm; i++)
+            {
+                var data = dataList[i];
+                $('#tableBody').append('<tr></tr>');
+                $('#tableBody').children().last().append('<th>' + data[0] + '</th>');
+                $('#tableBody').children().last().append('<th>' + data[1] + '</th>');
+            }
+        });
+    </script>
+</body>
+</html>
