@@ -1,3 +1,15 @@
 http://airavata.apache.org/
 http://commons.apache.org/
 https://cordova.apache.org/
+http://hbase.apache.org/
+http://marmotta.apache.org/
+http://rocketmq.apache.org/
+http://deltaspike.apache.org/
+http://aries.apache.org/
+ABCD
+http://climate.apache.org/
+https://spamassassin.apache.org/
+RDFUIS
+https://cordova.apache.org/
+http://incubator.apache.org/
+http://eagle.apache.org/

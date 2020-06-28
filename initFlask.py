@@ -44,7 +44,11 @@ def singleURL_processing_page():
 def multiURL_processing_page():
     if (request.method == 'POST'):
         URL_textFile = request.files['txt']
-        URL_textFile.save(secure_filename(URL_textFile.filename))
+        try:
+            URL_textFile.save(secure_filename(URL_textFile.filename))
+        except FileNotFoundError:
+            print("업로드한 파일이 없습니다.")
+            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2) 
 
         elastic_module.clear_elasticSearch_data()
         
@@ -52,9 +56,7 @@ def multiURL_processing_page():
         global URL_analyzeList
         URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
         
-        #유효한 URL이 하나도 없다면 실패 반환
-        if (len(URL_analyzeList) == 0):
-            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2) 
+            
     
     return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)
 
