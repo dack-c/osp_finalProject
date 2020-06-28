@@ -29,8 +29,7 @@ def launch_elasticSearch():
         except Exception as e:
             if (waitTime >= 90):
                 print("It tooks Too much time to connect.")
-                break
-            pass
+                return
 
 
     #elasticSearch index에서 받을 수 있는 데이터 상한을 20배 늘립니다.
