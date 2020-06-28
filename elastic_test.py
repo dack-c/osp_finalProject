@@ -12,29 +12,19 @@ if __name__=="__main__":
     ipAddress='127.0.0.1'
     elasticStream = Elasticsearch([{'es_host':ipAddress, 'es_port':'9200'}], timeout=30)
 
+    from Multi_website_Crawler import multi_URL_analyze
+    from dataAnalysis_module import get_cosine_similarity_list
+    from elastic_module import launch_elasticSearch
+    launch_elasticSearch()
+    DictionaryList = multi_URL_analyze("URL_test.txt")
+    tfidf_list = get_cosine_similarity_list(DictionaryList, "http://aries.apache.org/")
+
+    for i in tfidf_list:
+        print(i)
+
     ###########################
-    #Cosine Similiarity
-    #input : DictonaryList와 비교 대상이 되는 Dictonary index(pivot) - pivot은 valid임이 보증됨
-    #예를 들어 DictonaryList는 10의 길이를 지니고 DictonaryList[5]에 대한 코사인 유사도를 분석하는 것임
-    #pivot = 1
-    #wordDictonaryList_length = len()
 
 
-    #
-
-    elasticSettings = { 
-        'settings': {
-            'index.mapping.total_fields.limit':20000
-        }
-    }
-
-    try:
-        elasticStream.search(index='website')
-        elasticStream.indices.delete(index='website')
-    except NotFoundError:
-        pass
-        
-    elasticStream.indices.create(index='website', body=elasticSettings)
 
 
 
@@ -107,3 +97,6 @@ def Multi_URL_simpleTester():
     print("Total URLs = ", len(URL_list))
     for dic in URL_list:
         print(dic, '\n\n')
+
+
+

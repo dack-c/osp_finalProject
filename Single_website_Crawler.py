@@ -87,10 +87,12 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
   
 
     #HTML에서 태그 부분을 버리고 문자열로 변환
-    raw_string = website_HTMLText.find().get_text()
-    
-    wordList = raw_string.split()
+    raw_string = website_HTMLText.find_all(recursive=False)
+    wordList = []
 
+    for rawPartition in raw_string:
+        wordPartition = rawPartition.get_text()
+        wordList.extend(wordPartition.split())
 
 
     #loop마다 한 단어 처리
