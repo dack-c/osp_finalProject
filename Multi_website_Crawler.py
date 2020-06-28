@@ -4,8 +4,8 @@ import elastic_module
 
 #Input : URL이 한 줄씩 적혀있는 리스트.
 #Output : wordDictonary를 순서대로 모아둔 List
-def multi_URL_analyze(filename):
-    f = open(filename, "r")
+def multi_URL_analyze(f):
+    #f = open(filename, "r")
     
     textLine = 0
     wordDictionaryList = []

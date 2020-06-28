@@ -1,5 +1,0 @@
-http://deltaspike.apache.org/
-http://aries.apache.org/
-
-http://climate.apache.org/
-https://spamassassin.apache.org/
