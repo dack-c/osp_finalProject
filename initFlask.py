@@ -1,12 +1,12 @@
 #!/usr/bin/python
 from flask import Flask, render_template, request
-from werkzeug.utils import secure_filename
 import elastic_module
 import dataAnalysis_module
+import os
 from Single_website_Crawler import URLData, analyze_URL_words, jsonify_URLData
 from Multi_website_Crawler import multi_URL_analyze
 
-import pdb
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -44,18 +44,21 @@ def singleURL_processing_page():
 def multiURL_processing_page():
     if (request.method == 'POST'):
         URL_textFile = request.files['txt']
-
-
-        elastic_module.clear_elasticSearch_data()
-
-        #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
-        global URL_analyzeList
         try:
-            URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
+            #텍스트 파일을 임시 생성합니다.
+            URL_textFile.save(URL_textFile.filename)
         except FileNotFoundError:
             print("업로드한 파일이 없습니다.")
-            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2)
+            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2) 
+
+        elastic_module.clear_elasticSearch_data()
         
+        #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
+        global URL_analyzeList
+        URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
+        
+        #크롤링이 끝난 텍스트 파일을 삭제합니다.
+        os.remove(URL_textFile.filename)
             
     
     return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)
