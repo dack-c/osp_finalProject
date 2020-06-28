@@ -23,22 +23,19 @@ def singleURL_processing_page():
         requestedURL = request.form['url'] #get singleURL from input Box
         URL_res = URLData()
 
+        
+        elastic_module.clear_elasticSearch_data()  #데이터 초기화
+        URL_res = analyze_URL_words(requestedURL)
+        elastic_module.insert_elasticSearch(URL_res, 1)
+        
+        
+        if (URL_res['url_status'] == 0):    #반환받은 Dictionary의 상태가 정상이면 succeed=True
+            return render_template('index.html', wordDictionary=URL_res, succeed=True, pageStatus=1)
+        else:
+            return render_template('index.html', wordDictionary=URL_res, succeed=False, pageStatus=1)
+
+
     
-        try:
-            URL_res = analyze_URL_words(requestedURL)
-            elastic_module.insert_elasticSearch(URL_res, 1)
-        except Exception as e: #URL 요청 실패
-            print(e)
-            # pdb.set_trace()
-            # return render_template('index.html', wordDictionary={}, succeed=False, isRootPage=True)
-            #html 파일 수정되면... 위 라인을 아랫줄 구문으로 바꾸시오
-            return render_template('index.html', wordDictionary={}, succeed=False, pageStatus=1)
-
-
-    # pdb.set_trace()
-    # return render_template('index.html', wordDictionary=URL_res, succeed=True, isRootPage=False)
-    #html 파일 수정되면... 위 라인을 아랫줄 구문으로 바꾸시오
-    return render_template('index.html', wordDictionary=URL_res, succeed=True, pageStatus=1)
 
 
 
@@ -48,14 +45,16 @@ def multiURL_processing_page():
         URL_textFile = request.files['txt']
         URL_textFile.save(secure_filename(URL_textFile.filename))
 
+        elastic_module.clear_elasticSearch_data()
+        
         #다중 웹사이트 분석 결과를 리스트 형태로 받아옵니다.
         URL_analyzeList = multi_URL_analyze(URL_textFile.filename)
         
         #유효한 URL이 하나도 없다면 실패 반환
         if (len(URL_analyzeList) == 0):
-            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2)  #매개변수들 주의
+            return render_template('index.html', wordDictionaryList=[], succeed=False, pageStatus=2) 
     
-    return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)  #매개변수들 주의
+    return render_template('index.html', wordDictionaryList=URL_analyzeList, succeed=True, pageStatus=2)
 
 if __name__=='__main__':
     ipAddress='127.0.0.1'

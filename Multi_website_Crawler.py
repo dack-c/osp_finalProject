@@ -7,7 +7,6 @@ import elastic_module
 def multi_URL_analyze(filename):
     f = open(filename, "r")
     
-    websiteCount = 0
     textLine = 0
     wordDictionaryList = []
 
@@ -21,16 +20,26 @@ def multi_URL_analyze(filename):
 
         textLine += 1
         
-        try:
-            URL_res = analyze_URL_words(URL_line)
-            #유효한 URL이 아니면 위 메소드에서 예외가 던져져서, 콘솔에 Error 출력하고
-            #아래 try 블럭 내 작업은 수행되지 않습니다.
-            websiteCount += 1
-            elastic_module.insert_elasticSearch(URL_res, websiteCount)
-            wordDictionaryList.append(URL_res)
-        except Exception as e: #URL 요청 실패
-            print('Exception at URL_text file in Line ', textLine)
-            print(e)
+        
+        URL_res = analyze_URL_words(URL_line)
+        #analyze 메소드 내에서, URL 중복 및 유효성 검사를 실시합니다.
+
+        elastic_module.insert_elasticSearch(URL_res, textLine)
+        wordDictionaryList.append(URL_res)
+
+
+        #정상 상태 URL이 아닐때, 콘솔에 해당 사항을 출력합니다.
+        dictonary_status = URL_res['url_status']
+        if (dictonary_status != 0):
+            if (dictonary_status == 1):
+                print('Invalid URL', end=' ')
+            elif (dictonary_status == 2):
+                print('Duplicated URL', end=' ')
+
+            print('at URL_text file in Line ', textLine)
+
+
+
 
     f.close()
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import requests
 from bs4 import BeautifulSoup
-from elasticsearch import Elasticsearch, NotFoundError
+from elasticsearch import Elasticsearch
 from nltk_module import english_stopword_list
 import time
 
@@ -12,7 +12,7 @@ class URLData: #URL 크롤링 결과 데이터 객체
         self.totalWord = 0
         self.URL = str()
         self.caculateTime = 0.0
-        self.activated_on_site = True
+        self.url_status = 0
         
     
     
@@ -24,7 +24,7 @@ def jsonify_URLData(URLData_parameter):
     py_dictionary["totalWord"] = URLData_parameter.totalWord
     py_dictionary["URL"] = URLData_parameter.URL
     py_dictionary["caculateTime"]=URLData_parameter.caculateTime
-    py_dictionary["activated_on_site"]=URLData_parameter.activated_on_site
+    py_dictionary["url_status"]=URLData_parameter.url_status
 
     return py_dictionary
 
@@ -64,10 +64,23 @@ def analyze_URL_words(URL):     #받은 URL을 분석하여 단어 빈도수를 
  
     executeTime_start = time.time()
 
+    #1. URL 유효성 검사
     try:
         websiteRequest_receiver = requests.get(URL)
     except:
-        raise Exception("Website not found! or wrong notation")      #작동하지 않거나 이상한 URL 집어 넣으면 에러
+        #작동하지 않거나 이상한 URL 집어 넣으면
+        #실패 status를 담고 있는 빈 Dictonary를 반환합니다.
+        websiteData.url_status = 1    # Faliure Flag = 1
+        return jsonify_URLData(websiteData)
+
+    #2. URL 중복 검사
+    from elastic_module import search_urlMatch
+    if (search_urlMatch(URL) == True):
+        #중복 URL임이 발견 되면
+        #중복 status를 담고 있는 빈 Dictonary를 반환합니다.
+        websiteData.url_status = 2    # Duplicate Flag = 2
+        return jsonify_URLData(websiteData)
+
 
     #HTML 원문 저장
     website_HTMLText = BeautifulSoup(websiteRequest_receiver.content, 'html.parser')

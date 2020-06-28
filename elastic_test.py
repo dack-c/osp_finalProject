@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 
 
 
@@ -12,13 +12,31 @@ if __name__=="__main__":
     ipAddress='127.0.0.1'
     elasticStream = Elasticsearch([{'es_host':ipAddress, 'es_port':'9200'}], timeout=30)
 
-    import Multi_website_Crawler
-    URL_list = Multi_website_Crawler.multi_URL_analyze("URL_test.txt")
+    ###########################
+    #Cosine Similiarity
+    #input : DictonaryList와 비교 대상이 되는 Dictonary index(pivot) - pivot은 valid임이 보증됨
+    #예를 들어 DictonaryList는 10의 길이를 지니고 DictonaryList[5]에 대한 코사인 유사도를 분석하는 것임
+    #pivot = 1
+    #wordDictonaryList_length = len()
 
-    print(len(URL_list))
 
-    for dic in URL_list:
-        print(dic, '\n\n')
+    #
+
+    elasticSettings = { 
+        'settings': {
+            'index.mapping.total_fields.limit':20000
+        }
+    }
+
+    try:
+        elasticStream.search(index='website')
+        elasticStream.indices.delete(index='website')
+    except NotFoundError:
+        pass
+        
+    elasticStream.indices.create(index='website', body=elasticSettings)
+
+
 
     
 
@@ -26,7 +44,7 @@ if __name__=="__main__":
 
 def webSiteCount():
     # 1. 현재 elastic에 저장된 웹페이지 개수를 반환함. (int)
-    elasticWebsiteCount = elasticStream.count(index='urldata', doc_type='website')['count']
+    elasticWebsiteCount = elasticStream.count(index='website', doc_type='urldata')['count']
     print(elasticWebsiteCount)
 
 
@@ -35,7 +53,7 @@ def webSiteCount():
 def matching():
     nowWeb='https://apache.org/'
     # 2. URL match(정확히 일치) 검색. (dictonary return)
-    doc = elasticStream.search(body={"query":{"match":{"URL.keyword":nowWeb}}}, index='urldata', doc_type='website')['hits']['total']['value']
+    doc = elasticStream.search(body={"query":{"match":{"URL.keyword":nowWeb}}}, index='website', doc_type='urldata')['hits']['total']['value']
 
     
     #--> 존재하는 경우 반환값 예시
@@ -79,4 +97,13 @@ def matching():
     
     print('\n\n', doc)
 
-    
+
+
+def Multi_URL_simpleTester():
+    #3. 멀티 웹사이트 크롤러 테스트
+    import Multi_website_Crawler
+    URL_list = Multi_website_Crawler.multi_URL_analyze("URL_test.txt")
+
+    print("Total URLs = ", len(URL_list))
+    for dic in URL_list:
+        print(dic, '\n\n')

@@ -33,7 +33,7 @@ def launch_elasticSearch():
 
 
     #elasticSearch index에서 받을 수 있는 데이터 상한을 20배 늘립니다.
-    elasticSettings = {
+    elasticSettings = { 
         'settings': {
             'index.mapping.total_fields.limit':20000
         }
@@ -50,6 +50,8 @@ def launch_elasticSearch():
 
 
 
+
+
 #ElasticSearch에서, _id 번호에 websiteData(jsonified)를 삽입합니다.  (no return)
 def insert_elasticSearch(websiteData, _id):
     print("Add urlData to ElasticSearch id = ", _id, ". URL = ", websiteData['URL'])
@@ -57,4 +59,35 @@ def insert_elasticSearch(websiteData, _id):
     saveData = elasticStream.index(index='website', doc_type='urldata', id=_id, body=websiteData)
     if saveData == False:
         print("\nURLData Saving to Elastic Failed..\n")
+    
+
+
+#ElasticSearch에서, 인자로 전해준 URL에 대한 Dictionary가 이미 존재하는 지 검색합니다.
+#반환은 boolean 타입.
+def search_urlMatch(URL):
+    searchHits = elasticStream.search(body={"query":{"match":{"URL.keyword":URL}}},\
+            index='website', doc_type='urldata')['hits']['total']['value']
+    
+    if searchHits >= 1:
+        return True
+    else:
+        return False
+
+
+#website index가 존재하는 경우, index 내부 값을 싹 비워버리고 새로 생성합니다. (no return)
+#실행되지도 않은 elasticSearch에 대한 예외는 보증하지 않습니다.
+def clear_elasticSearch_data():
+    elasticSettings = { 
+        'settings': {
+            'index.mapping.total_fields.limit':20000
+        }
+    }
+
+    try:
+        elasticStream.search(index='website')
+        elasticStream.indices.delete(index='website')
+    except NotFoundError:
+        pass
+        
+    elasticStream.indices.create(index='website', body=elasticSettings)
     

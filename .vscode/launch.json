@@ -5,12 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "file": "${workspaceFolder}/templates/index.html"
-        },
-        {
             "type": "python",
             "request": "launch",
             "name": "Launch Python",
