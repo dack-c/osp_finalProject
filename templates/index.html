@@ -12,9 +12,11 @@
 </head>
 <body>
     <div class="container">
-        <div class="page-header text-center">
-            <h1>Web Page Analysis</h1>
-        </div>
+        <a href="/">
+            <div class="page-header text-center">
+                <h1>Web Page Analysis</h1>
+            </div>
+        </a>
     
         <div class="row">
             <form id="singleURLForm" method="POST" action="/singleURL">
@@ -30,19 +32,34 @@
             </form>
         </div>
         
-    
+        <div class="row">
+            <form id="multiURLForm" method="POST" action="/multiURL" enctype="multipart/form-data">
+                <div class="form-group col-xs-10">
+                    <label for="exampleInputFile">txt파일 업로드(여러개의 URL)</label>
+                    <input name="txt" type="file" id="exampleInputFile">
+                    <p class="help-block">분석할 URL들이 적힌 txt파일을 업로드해주세요</p>
+                    <button type="submit" class="btn btn-default">업로드</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="row text-center" id="succeedTag">
+        </div>
         <!-- <form id="singleURLForm" method="POST" action="/singleURL">
             <input name="url" type="text" placeholder="분석하고자 하는 URL을 입력하세요." class="form-control">
             <div class="input-group-btn">
                 <button type="submit" class="btn btn-default">업로드</button>
             </div>
         </form> -->
+
+        <div class="row" id="result">
+        </div>
+
         <div class="row">
-            <ul id="result">
+            <ul id="resultTest">
             </ul>
         </div>
     </div>
-    
     <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
@@ -50,30 +67,74 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            if ($(location).attr('pathname') == '/singleURL')
+            if ($(location).attr('pathname') == '/singleURL' || $(location).attr('pathname') == '/multiURL')
             {
+                //result부분 비우기
                 $('#result').empty();
+
+                //분석 성공 여부 출력
                 var succeed = '{{succeed}}';
                 if (succeed == 'False')
                 {
-                    $('#result').append('<li>fail</li>');
+                    $('#succeedTag').append('<h3><span class="label label-danger">URL분석실패</span></h3>');
                     return;
                 }
-                {% if isRootPage == False %}
-                    var data = JSON.parse('{{ wordDictionary | tojson | safe}}');
-                {% endif %}
-                
-                $('#result').append('<li>' + 'url: ' + data["URL"] + '</li>');
-                $('#result').append('<li>' + 'total: ' + data['totalWord'] + '</li>');
-                $('#result').append('<li>' + 'caculateTime: ' + data['caculateTime'] + '</li>');
-                var keys = [];
-                var wordDictionary = data['wordFrequency_dict'];
-                for (var k in wordDictionary) keys.push(k);
-                for (var k of keys)
+                $('#succeedTag').append('<h3><span class="label label-success">URL분석성공!</span></h3>');
+
+                //result table 초기화
+                $('#result').append(
+                    `<table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                                <th>단어 수</th>
+                                <th>처리시간</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>`
+                );
+
+                if ($(location).attr('pathname') == '/singleURL') 
                 {
-                    $('#result').append('<li>' + k + ': ' + wordDictionary[k] + '</li>');
+                    {% if pageStaus == 1 %}
+                        var data = JSON.parse('{{ wordDictionary | tojson | safe}}');
+                    {% endif %}
+
+                    $('#tableBody').append('<tr id="tableRow"></tr>');
+                    $('#tableRow').append('<th>' + data["URL"] + '</th>');
+                    $('#tableRow').append('<th>' + data['totalWord'] + '</th>');
+                    $('#tableRow').append('<th>' + data['caculateTime'] + '초</th>');
+
+                    $('#resultTest').append('<li>' + 'url: ' + data["URL"] + '</li>');
+                    $('#resultTest').append('<li>' + 'total: ' + data['totalWord'] + '</li>');
+                    $('#resultTest').append('<li>' + 'caculateTime: ' + data['caculateTime'] + '</li>');
+                    var keys = [];
+                    var wordDictionary = data['wordFrequency_dict'];
+                    for (var k in wordDictionary) keys.push(k);
+                    for (var k of keys) 
+                    {
+                        $('#resultTest').append('<li>' + k + ': ' + wordDictionary[k] + '</li>');
+                    }
                 }
-            }
+                else if($(location).attr('pathname') == '/multiURL')
+                {
+                    {% if pageStaus == 2 %}
+                        var dataList = JSON.parse('{{ wordDictionaryList | tojson | safe}}');
+                    {% endif %}
+
+                    var urlNum = Object.keys(dataList).length;
+                    for(var i = 0; i < urlNum; i++)
+                    {
+                        var data = dataList[i];
+                        $('#tableBody').append('<tr></tr>');
+                        $('#tableBody').children().last().append('<th>' + data["URL"] + '</th>');
+                        $('#tableBody').children().last().append('<th>' + data['totalWord'] + '</th>');
+                        $('#tableBody').children().last().append('<th>' + data['caculateTime'] + '초</th>');
+                    }
+                }
+            }   
         })
     </script>
 
